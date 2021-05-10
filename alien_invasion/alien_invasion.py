@@ -2,7 +2,7 @@ import sys
 import pygame
 
 class AlienInvasion:
-    '''游戏主类，用于管理整个游戏'''
+    ''' 游戏主类，用于管理整个游戏 '''
 
     def __init__(self):
         ''' 初始化游戏并创建资源 '''
