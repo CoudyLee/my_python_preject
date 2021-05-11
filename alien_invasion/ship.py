@@ -11,6 +11,7 @@ class Ship:
         #加载图片和获取图片长宽
         self.image = pygame.image.load('images/ship.bmp')
         self.rect = self.image.get_rect()
+        
         #初始化飞船位置，放在屏幕中间
         self.rect.midbottom = self.screen_rect.midbottom
 
