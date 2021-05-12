@@ -4,6 +4,7 @@ import pygame
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
+from alien import Alien
 
 class AlienInvasion:
     ''' 游戏主类，用于管理整个游戏 '''
@@ -25,11 +26,12 @@ class AlienInvasion:
 
         pygame.display.set_caption("Alien Invasion")
 
-        #创建飞船对象
-        self.ship = Ship(self)
-        #创建子弹列表
-        self.bullets = pygame.sprite.Group()
-        
+        self.ship = Ship(self)                  #创建飞船对象
+        self.bullets = pygame.sprite.Group()    #创建子弹列表
+        self.aliens = pygame.sprite.Group()     #创建外星人列表
+
+        self._create_fleet()                    #初始化一群外星人
+
     def run_game(self):
         ''' 游戏循环 '''
         while True:
@@ -37,8 +39,8 @@ class AlienInvasion:
             self._check_events()
             #更新飞船位置
             self.ship.update()
-            #更新子弹列表各子弹位置
-            self.bullets.update()
+            #更新子弹状态
+            self._update_bullets()
             #调用刷新画面方法
             self._update_screen()
 
@@ -83,8 +85,9 @@ class AlienInvasion:
 
     def _fire_bullet(self):
         ''' 创建子弹，并加入子弹列表 '''
-        new_bullet = Bullet(self)
-        self.bullets.add(new_bullet)
+        if len(self.bullets) < self.settings.bullet_allowed:
+            new_bullet = Bullet(self)
+            self.bullets.add(new_bullet)
 
     def _update_screen(self):
         ''' 负责画面刷新的方法 '''
@@ -96,8 +99,27 @@ class AlienInvasion:
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
 
+        #绘制外星人列表
+        self.aliens.draw(self.screen)
+
         #绘制屏幕
         pygame.display.flip()
+
+    def _update_bullets(self):
+        ''' 更新子弹状态 '''
+        #更新子弹列表各子弹位置
+        self.bullets.update()
+
+        #删除消失的子弹
+        for bullet in self.bullets.copy():
+                if bullet.rect.bottom <= 0:
+                    self.bullets.remove(bullet)
+
+    def _create_fleet(self):
+        ''' 创建一群外星人 '''
+        #创建一个外星人实例并放入列表
+        alien = Alien(self)
+        self.aliens.add(alien)
 
 if __name__ == '__main__':
     ''' 利用主类创建实例并运行 '''
