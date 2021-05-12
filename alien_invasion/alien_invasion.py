@@ -3,6 +3,7 @@ import pygame
 
 from settings import Settings
 from ship import Ship
+from bullet import Bullet
 
 class AlienInvasion:
     ''' 游戏主类，用于管理整个游戏 '''
@@ -26,6 +27,8 @@ class AlienInvasion:
 
         #创建飞船对象
         self.ship = Ship(self)
+        #创建子弹列表
+        self.bullets = pygame.sprite.Group()
         
     def run_game(self):
         ''' 游戏循环 '''
@@ -34,6 +37,8 @@ class AlienInvasion:
             self._check_events()
             #更新飞船位置
             self.ship.update()
+            #更新子弹列表各子弹位置
+            self.bullets.update()
             #调用刷新画面方法
             self._update_screen()
 
@@ -63,6 +68,9 @@ class AlienInvasion:
         elif event.key == pygame.K_q:
             #按q关闭程序
             sys.exit()
+        elif event.key == pygame.K_SPACE:
+            #按空格创建子弹对象
+            self._fire_bullet()
 
     def _check_keyup_events(self,event):
         ''' 监测松开事件 '''
@@ -70,15 +78,23 @@ class AlienInvasion:
             #关闭右移状态
             self.ship.moving_right = False
         if event.key == pygame.K_LEFT:
-                    #关闭左移状态
+            #关闭左移状态
             self.ship.moving_left = False
 
+    def _fire_bullet(self):
+        ''' 创建子弹，并加入子弹列表 '''
+        new_bullet = Bullet(self)
+        self.bullets.add(new_bullet)
 
     def _update_screen(self):
         ''' 负责画面刷新的方法 '''
         #填充屏幕颜色
         self.screen.fill(self.settings.bg_color)
         self.ship.blitme()#调用飞船绘制方法绘制飞船
+
+        #循环子弹列表，并调用各个实例的渲染方法
+        for bullet in self.bullets.sprites():
+            bullet.draw_bullet()
 
         #绘制屏幕
         pygame.display.flip()
