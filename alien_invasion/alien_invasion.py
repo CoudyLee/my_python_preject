@@ -35,14 +35,11 @@ class AlienInvasion:
     def run_game(self):
         ''' 游戏循环 '''
         while True:
-            #调用输入事件方法
-            self._check_events()
-            #更新飞船位置
-            self.ship.update()
-            #更新子弹状态
-            self._update_bullets()
-            #调用刷新画面方法
-            self._update_screen()
+            self._check_events()        #调用输入事件方法
+            self.ship.update()          #更新飞船位置
+            self._update_bullets()      #更新子弹状态
+            self._update_aliens()       #更新外星人状态
+            self._update_screen()       #调用刷新画面方法
 
     def _check_events(self):
         ''' 监测输入事件 '''
@@ -117,9 +114,48 @@ class AlienInvasion:
 
     def _create_fleet(self):
         ''' 创建一群外星人 '''
-        #创建一个外星人实例并放入列表
+        #创建一个实例，根据实例宽度和屏幕宽度计算出一行可放多少个外星人
         alien = Alien(self)
+        alien_width,alien_height = alien.rect.size
+        available_space_x = alien.settings.screen_width - (2 * alien_width)
+        number_aliens_x = available_space_x // (2 * alien_width)#每行个数
+        #计算可以容纳多少行外星人
+        ship_height = self.ship.rect.height
+        available_space_y = (self.settings.screen_height -
+                                (3 * alien_height) - ship_height)
+        number_rows = available_space_y // (2 * alien_height)#行数
+
+        #创建一群外星人
+        for row_number in range(number_rows):
+            for alien_number in range(number_aliens_x):
+                self._create_alien(alien_number,row_number)
+
+    def _create_alien(self,alien_number,row_number):
+        ''' 创建一个外星人，并按照排序和行数摆放 '''
+        alien = Alien(self)
+        alien_width,alien_height = alien.rect.size
+        alien.x = alien_width + 2 * alien_width * alien_number
+        alien.rect.x = alien.x
+        alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
         self.aliens.add(alien)
+
+    def _check_fleet_edges(self):
+        ''' 检测外星人撞墙 '''
+        for alien in self.aliens.sprites():
+            if alien.check_edges():
+                self._change_fleet_direction()
+                break
+
+    def _change_fleet_direction(self):
+        ''' 往下移动外星人，并改变方向 '''
+        for alien in self.aliens.sprites():
+            alien.rect.y += self.settings.fleet_drop_speed
+        self.settings.fleet_direction *= -1
+
+    def _update_aliens(self):
+        ''' 更新所有外星人位置和状态 '''
+        self._check_fleet_edges()
+        self.aliens.update()
 
 if __name__ == '__main__':
     ''' 利用主类创建实例并运行 '''

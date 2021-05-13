@@ -17,3 +17,8 @@ class Settings:
         self.bullet_height = 15         #子弹矩形高度
         self.bullet_color = (60,60,60)  #子弹颜色
         self.bullet_allowed = 3         #子弹总数
+
+        #外星人设置
+        self.alien_speed = 0.1          #外星人速度
+        self.fleet_drop_speed = 10.0    #外星人下移速度
+        self.fleet_direction = 1        #外星人移动方向（1右，-1左）
