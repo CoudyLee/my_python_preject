@@ -4,6 +4,7 @@ from time import sleep
 
 from settings import Settings
 from game_stats import GameStats
+from button import Button
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
@@ -37,6 +38,8 @@ class AlienInvasion:
 
         self._create_fleet()                    #初始化一群外星人
 
+        self.play_button = Button(self,"Play")  #创建开始按钮
+
     def run_game(self):
         ''' 游戏循环 '''
         while True:
@@ -53,7 +56,10 @@ class AlienInvasion:
             #监测到点击窗口X按钮后关闭窗口
             if event.type == pygame.QUIT:
                 sys.exit()
-
+            #监测鼠标按下事件
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_buttom(mouse_pos)
             #监测键盘事件
             elif event.type == pygame.KEYDOWN:  #监测按下
                 self._check_keydown_events(event)
@@ -104,6 +110,10 @@ class AlienInvasion:
 
         #绘制外星人列表
         self.aliens.draw(self.screen)
+
+        #游戏非活跃显示按钮
+        if not self.stats.game_active:
+            self.play_button.draw_button()
 
         #绘制屏幕
         pygame.display.flip()
@@ -200,6 +210,7 @@ class AlienInvasion:
             sleep(0.5)
         else:
             self.stats.game_active = False
+            pygame.mouse.set_visible(True)
 
     def _check_aliens_bottom(self):
         ''' 检测外星人是否到达画布底端 '''
@@ -208,6 +219,25 @@ class AlienInvasion:
             if alien.rect.bottom >= screen_rect.bottom:
                 self._ship_hit()
                 break
+
+    def _check_play_buttom(self,mouse_pos):
+        ''' 鼠标点击位置在按钮内则开始游戏 '''
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.stats.game_active:
+            #重置游戏统计信息
+            self.stats.reset_stats()
+            self.stats.game_active = True
+
+            #删除所有外星人和子弹
+            self.aliens.empty()
+            self.bullets.empty()
+
+            #初始化外星人和飞船
+            self._create_fleet()
+            self.ship.center_ship()
+
+            #
+            pygame.mouse.set_visible(False)
 
 if __name__ == '__main__':
     ''' 利用主类创建实例并运行 '''
