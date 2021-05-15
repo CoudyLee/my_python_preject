@@ -1,10 +1,11 @@
 import pygame
+from pygame.sprite import Sprite
 
-class Ship:
+class Ship(Sprite):
     ''' 飞船类 '''
     def __init__(self,ai_game):
         ''' 初始化飞船并且设置位置 '''
-
+        super().__init__()
         self.screen = ai_game.screen                    #获取朱磊屏幕对象
         self.settings = ai_game.settings                #获取主类设置对象的属性
         self.screen_rect = ai_game.screen.get_rect()    #获取主类屏幕大小
